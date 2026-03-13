@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRMS Discovery — Response Capture</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-mid: #4a4a6a;
+    --ink-soft: #8888aa;
+    --paper: #faf9f6;
+    --paper-warm: #f3f1eb;
+    --rule: #e2dfd6;
+    --accent: #2d5be3;
+    --accent-light: #eef1fd;
+    --teal: #0e7c6b;
+    --teal-light: #e8f5f2;
+    --coral: #c94b2a;
+    --coral-light: #fdf0ec;
+    --amber: #b86a00;
+    --amber-light: #fdf4e3;
+    --blue: #1a4fa0;
+    --blue-light: #edf2fb;
+    --tag-h: 26px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--ink);
+    padding: 40px 60px 36px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .header-left {}
+  .brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .doc-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: #ffffff;
+    line-height: 1.1;
+    font-weight: 400;
+  }
+  .doc-title em {
+    font-style: italic;
+    color: #a0b4f0;
+  }
+  .header-meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .meta-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .meta-field {
+    border-bottom: 1px solid #3a3a5a;
+    padding: 6px 0;
+    min-width: 200px;
+    font-size: 13px;
+    color: #c0c8e8;
+    font-weight: 400;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    background: #16162a;
+    padding: 12px 60px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .progress-step {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+  }
+  .progress-step:last-child { flex: 0; }
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #3a3a5a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: #5a5a7a;
+    background: #1e1e32;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .step-dot.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+  .step-dot.done {
+    border-color: var(--teal);
+    background: var(--teal);
+    color: white;
+  }
+  .step-line {
+    flex: 1;
+    height: 1px;
+    background: #2a2a44;
+  }
+  .step-line.done { background: var(--teal); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 60px 80px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 12px;
+  }
+  .section-hidden { display: none; }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .q-card:focus-within {
+    border-color: var(--accent);
+  }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px 0;
+  }
+
+  .q-tag {
+    height: var(--tag-h);
+    padding: 0 10px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tag-teal  { background: var(--teal-light);  color: var(--teal); }
+  .tag-purple{ background: #f0effd;             color: #4b42b5; }
+  .tag-coral { background: var(--coral-light);  color: var(--coral); }
+  .tag-amber { background: var(--amber-light);  color: var(--amber); }
+  .tag-blue  { background: var(--blue-light);   color: var(--blue); }
+
+  .q-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .q-hint {
+    font-size: 12px;
+    color: var(--ink-soft);
+    padding: 6px 24px 0 68px;
+    line-height: 1.5;
+  }
+
+  .q-body {
+    padding: 14px 24px 20px;
+  }
+
+  /* text areas */
+  textarea {
+    width: 100%;
+    border: none;
+    background: var(--paper-warm);
+    border-radius: 2px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    line-height: 1.65;
+    min-height: 80px;
+    transition: background 0.15s;
+  }
+  textarea:focus { background: #eef0f8; }
+  textarea::placeholder { color: var(--ink-soft); font-style: italic; }
+
+  /* option pills */
+  .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .pill {
+    height: 34px;
+    padding: 0 16px;
+    border: 1.5px solid var(--rule);
+    border-radius: 17px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-mid);
+    background: white;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .pill:hover { border-color: var(--accent); color: var(--accent); }
+  .pill.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .pill-check { font-size: 11px; }
+
+  /* number input */
+  .num-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .num-field {
+    flex: 1;
+    min-width: 160px;
+  }
+  .num-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    border: none;
+    background: var(--paper-warm);
+    border-radius: 2px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    outline: none;
+    transition: background 0.15s;
+  }
+  input:focus { background: #eef0f8; }
+  input::placeholder { color: var(--ink-soft); font-style: italic; }
+
+  /* budget slider */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+  }
+  .slider-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+    min-width: 130px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+  }
+
+  /* ── NAV ── */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+  }
+  .btn {
+    height: 44px;
+    padding: 0 28px;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-outline {
+    background: white;
+    border: 1.5px solid var(--rule);
+    color: var(--ink-mid);
+  }
+  .btn-outline:hover { border-color: var(--ink-mid); color: var(--ink); }
+  .btn-primary {
+    background: var(--ink);
+    color: white;
+  }
+  .btn-primary:hover { background: #2d2d4e; }
+  .btn-success {
+    background: var(--teal);
+    color: white;
+    display: none;
+  }
+  .btn-success:hover { background: #0a6358; }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── SUMMARY ── */
+  .summary-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 28px 28px 20px;
+    margin-bottom: 16px;
+  }
+  .summary-group-title {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .summary-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .summary-q {
+    font-size: 12px;
+    color: var(--ink-soft);
+    min-width: 180px;
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+  .summary-a {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 400;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .summary-a.empty { color: var(--ink-soft); font-style: italic; }
+
+  .confetti-msg {
+    text-align: center;
+    padding: 32px 0 16px;
+  }
+  .confetti-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  .confetti-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .confetti-sub {
+    font-size: 14px;
+    color: var(--ink-mid);
+    font-weight: 300;
+  }
+
+  @media print {
+    .header { background: #1a1a2e !important; -webkit-print-color-adjust: exact; }
+    .progress-bar { display: none; }
+    .nav-row { display: none; }
+    .section-hidden { display: block !important; }
+    .q-card { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="brand">PeopleFactor &nbsp;/&nbsp; HRMS Discovery</div>
+    <div class="doc-title">Client <em>Discovery</em><br>Response Sheet</div>
+  </div>
+  <div class="header-meta">
+    <div class="meta-label">Prospect</div>
+    <div class="meta-field" id="prospect-name-display">Aksh Optifibre Ltd.</div>
+    <div style="height:14px"></div>
+    <div class="meta-label">Date</div>
+    <div class="meta-field" id="date-display"></div>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar">
+  <div class="progress-step">
+    <div class="step-dot active" id="dot-1" onclick="goTo(1)">1</div>
+    <div class="step-line" id="line-1"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-2" onclick="goTo(2)">2</div>
+    <div class="step-line" id="line-2"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-3" onclick="goTo(3)">3</div>
+    <div class="step-line" id="line-3"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-4" onclick="goTo(4)">4</div>
+    <div class="step-line" id="line-4"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-5" onclick="goTo(5)">5</div>
+    <div class="step-line" id="line-5"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-6" onclick="goTo(6)">6</div>
+    <div class="step-line" id="line-6"></div>
+  </div>
+  <div class="progress-step">
+    <div class="step-dot" id="dot-7" onclick="goTo(7)">7</div>
+    <div class="step-line" id="line-7"></div>
+  </div>
+  <div class="step-dot" id="dot-8" onclick="goTo(8)">&#10003;</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── SECTION 1: Workforce & Structure ── -->
+  <div class="section" id="sec-1">
+    <div class="section-title">Your details</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-teal">Identity</span>
+        <span class="q-label">Before we begin — who are we speaking with?</span>
+      </div>
+      <div class="q-hint">A copy of your completed responses will be sent to the email address you provide.</div>
+      <div class="q-body">
+        <div class="num-row">
+          <div class="num-field">
+            <div class="num-label">Your name</div>
+            <input type="text" id="f-respondent-name" placeholder="e.g. Bala Kumar">
+          </div>
+          <div class="num-field">
+            <div class="num-label">Your email address</div>
+            <input type="email" id="f-respondent-email" placeholder="e.g. bala@akshoptifibre.com">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:28px;">NQ1 &nbsp; Workforce &amp; structure</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-teal">Scale</span>
+        <span class="q-label">How many employees do you have in total, how many are on payroll, and do you operate from one or multiple locations?</span>
+      </div>
+      <div class="q-hint">Captures headcount, payroll scope, and geographic spread in one go.</div>
+      <div class="q-body">
+        <div class="num-row" style="margin-bottom:14px">
+          <div class="num-field">
+            <div class="num-label">Total headcount</div>
+            <input type="number" id="f-headcount" placeholder="e.g. 450" min="1">
+          </div>
+          <div class="num-field">
+            <div class="num-label">On payroll</div>
+            <input type="number" id="f-payroll" placeholder="e.g. 390" min="1">
+          </div>
+          <div class="num-field">
+            <div class="num-label">No. of locations</div>
+            <input type="number" id="f-locations" placeholder="e.g. 3" min="1">
+          </div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px">Location names / cities</div>
+        <input type="text" id="f-location-names" placeholder="e.g. Bhiwadi (HQ), Delhi, Mumbai">
+      </div>
+    </div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" onclick="next(1)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Current HR & Tech State ── -->
+  <div class="section section-hidden" id="sec-2">
+    <div class="section-title">NQ2 &nbsp; Current HR &amp; tech state</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-purple">Setup</span>
+        <span class="q-label">Which HR functions are currently handled by your in-house software versus manually — and how is attendance captured today?</span>
+      </div>
+      <div class="q-hint">Select all that apply for each, then choose the attendance method.</div>
+      <div class="q-body">
+        <div class="num-label" style="margin-bottom:8px">Functions in in-house software</div>
+        <div class="pill-group" id="pg-software">
+          <div class="pill" onclick="togglePill(this,'software')">Payroll</div>
+          <div class="pill" onclick="togglePill(this,'software')">Attendance</div>
+          <div class="pill" onclick="togglePill(this,'software')">Leave management</div>
+          <div class="pill" onclick="togglePill(this,'software')">Recruitment</div>
+          <div class="pill" onclick="togglePill(this,'software')">Performance (PMS)</div>
+          <div class="pill" onclick="togglePill(this,'software')">Employee records</div>
+          <div class="pill" onclick="togglePill(this,'software')">Statutory compliance</div>
+        </div>
+        <div class="num-label" style="margin-bottom:8px;margin-top:16px">Functions done manually</div>
+        <div class="pill-group" id="pg-manual">
+          <div class="pill" onclick="togglePill(this,'manual')">Payroll</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Attendance</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Leave management</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Recruitment</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Performance (PMS)</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Employee records</div>
+          <div class="pill" onclick="togglePill(this,'manual')">Statutory compliance</div>
+        </div>
+        <div class="num-label" style="margin-bottom:8px;margin-top:16px">Attendance capture method</div>
+        <div class="pill-group" id="pg-attendance">
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Biometric device</div>
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Mobile app</div>
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Manual register</div>
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Excel / spreadsheet</div>
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Swipe card</div>
+          <div class="pill" onclick="togglePill(this,'attendance',true)">Mixed / hybrid</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px;margin-top:16px">Additional notes</div>
+        <textarea id="f-setup-notes" rows="2" placeholder="Any other context on current setup..."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(2)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="next(2)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: Pain Points ── -->
+  <div class="section section-hidden" id="sec-3">
+    <div class="section-title">NQ3 &nbsp; Pain points &amp; motivation</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-coral">Challenges</span>
+        <span class="q-label">What are the biggest HR challenges you are currently facing?</span>
+      </div>
+      <div class="q-hint">The most important question — shapes everything in the demo.</div>
+      <div class="q-body">
+        <div class="num-label" style="margin-bottom:8px">Common pain areas (select all that resonate)</div>
+        <div class="pill-group" id="pg-pain">
+          <div class="pill" onclick="togglePill(this,'pain')">Payroll errors / delays</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Attendance mismatches</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Compliance risk</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Manual data entry</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Poor visibility / reports</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Recruitment bottlenecks</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Performance tracking gaps</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Scattered data / no single source</div>
+          <div class="pill" onclick="togglePill(this,'pain')">Employee self-service gaps</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px;margin-top:16px">In their own words</div>
+        <textarea id="f-pain-notes" rows="4" placeholder="Capture verbatim pain points from the conversation..."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(3)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="next(3)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: Demo Timing ── -->
+  <div class="section section-hidden" id="sec-4">
+    <div class="section-title">NQ4 &nbsp; Demo timing</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-amber">Scheduling</span>
+        <span class="q-label">When would be a good time to schedule a demo for your team?</span>
+      </div>
+      <div class="q-hint">Confirm date, time, format, and who should be present.</div>
+      <div class="q-body">
+        <div class="num-row" style="margin-bottom:14px">
+          <div class="num-field">
+            <div class="num-label">Preferred date</div>
+            <input type="text" id="f-demo-date" placeholder="e.g. Week of 24 Mar">
+          </div>
+          <div class="num-field">
+            <div class="num-label">Preferred time</div>
+            <input type="text" id="f-demo-time" placeholder="e.g. 11 AM IST">
+          </div>
+        </div>
+        <div class="num-label" style="margin-bottom:8px">Demo format</div>
+        <div class="pill-group" id="pg-demo-format">
+          <div class="pill" onclick="togglePill(this,'demo-format',true)">Video call (Teams / Meet)</div>
+          <div class="pill" onclick="togglePill(this,'demo-format',true)">In-person at their office</div>
+          <div class="pill" onclick="togglePill(this,'demo-format',true)">In-person at our office</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px;margin-top:14px">Additional notes</div>
+        <textarea id="f-demo-notes" rows="2" placeholder="Any scheduling constraints, preferred platform, etc."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(4)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="next(4)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 5: Go-Live Timeline ── -->
+  <div class="section section-hidden" id="sec-5">
+    <div class="section-title">NQ5 &nbsp; Go-live target</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-amber">Timeline</span>
+        <span class="q-label">What is your target timeline to finalise and go live with the new HRMS?</span>
+      </div>
+      <div class="q-hint">Helps calibrate urgency and implementation planning.</div>
+      <div class="q-body">
+        <div class="num-label" style="margin-bottom:8px">Urgency signal</div>
+        <div class="pill-group" id="pg-timeline">
+          <div class="pill" onclick="togglePill(this,'timeline',true)">ASAP / within 1 month</div>
+          <div class="pill" onclick="togglePill(this,'timeline',true)">1 – 3 months</div>
+          <div class="pill" onclick="togglePill(this,'timeline',true)">3 – 6 months</div>
+          <div class="pill" onclick="togglePill(this,'timeline',true)">6 – 12 months</div>
+          <div class="pill" onclick="togglePill(this,'timeline',true')">Exploring / no fixed date</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px;margin-top:16px">Target go-live month / quarter</div>
+        <input type="text" id="f-golive" placeholder="e.g. June 2025 / Q2 FY26">
+        <div class="num-label" style="margin-bottom:6px;margin-top:14px">Any hard deadlines or triggers?</div>
+        <textarea id="f-timeline-notes" rows="2" placeholder="e.g. new financial year, audit requirement, board directive..."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(5)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="next(5)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 6: Stakeholders ── -->
+  <div class="section section-hidden" id="sec-6">
+    <div class="section-title">NQ6 &nbsp; Evaluation stakeholders</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-amber">People</span>
+        <span class="q-label">Who else from your team will be involved in evaluating and approving the solution?</span>
+      </div>
+      <div class="q-hint">Map the decision committee early to avoid late-stage surprises.</div>
+      <div class="q-body">
+        <div class="num-label" style="margin-bottom:8px">Typical roles involved</div>
+        <div class="pill-group" id="pg-roles">
+          <div class="pill" onclick="togglePill(this,'roles')">HR Head / CHRO</div>
+          <div class="pill" onclick="togglePill(this,'roles')">Finance / CFO</div>
+          <div class="pill" onclick="togglePill(this,'roles')">IT Head / CTO</div>
+          <div class="pill" onclick="togglePill(this,'roles')">MD / CEO</div>
+          <div class="pill" onclick="togglePill(this,'roles')">Payroll Manager</div>
+          <div class="pill" onclick="togglePill(this,'roles')">Admin / Ops</div>
+          <div class="pill" onclick="togglePill(this,'roles')">Procurement</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px;margin-top:16px">Named contacts &amp; roles</div>
+        <textarea id="f-stakeholders" rows="3" placeholder="Name — Role&#10;Name — Role&#10;..."></textarea>
+        <div class="num-label" style="margin-bottom:8px;margin-top:14px">Who is the final decision-maker?</div>
+        <input type="text" id="f-decision-maker" placeholder="Name and designation">
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(6)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="next(6)">Next &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 7: Budget ── -->
+  <div class="section section-hidden" id="sec-7">
+    <div class="section-title">NQ7 &nbsp; Budget</div>
+    <div class="q-card">
+      <div class="q-header">
+        <span class="q-tag tag-blue">Budget</span>
+        <span class="q-label">What budget range do you have in mind for the HRMS, and has it been formally allocated?</span>
+      </div>
+      <div class="q-hint">Even a rough range helps narrow the product fit significantly.</div>
+      <div class="q-body">
+        <div class="num-label" style="margin-bottom:8px">Budget status</div>
+        <div class="pill-group" id="pg-budget-status">
+          <div class="pill" onclick="togglePill(this,'budget-status',true)">Formally allocated</div>
+          <div class="pill" onclick="togglePill(this,'budget-status',true)">Informally earmarked</div>
+          <div class="pill" onclick="togglePill(this,'budget-status',true)">Under discussion</div>
+          <div class="pill" onclick="togglePill(this,'budget-status',true)">Not yet decided</div>
+        </div>
+        <div class="num-label" style="margin-bottom:8px;margin-top:16px">Annual budget range (INR)</div>
+        <div class="slider-row">
+          <input type="range" id="budget-slider" min="0" max="10" step="1" value="3" oninput="updateBudget(this.value)">
+          <div class="slider-val" id="budget-val">₹2 – 5 L/yr</div>
+        </div>
+        <div class="num-label" style="margin-bottom:6px">Comments on budget</div>
+        <textarea id="f-budget-notes" rows="2" placeholder="Any context — one-time vs subscription, per employee pricing preferred, etc."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(7)">&larr; Back</button>
+      <button class="btn btn-primary" id="btn-review" onclick="next(7)">Review summary &rarr;</button>
+    </div>
+  </div>
+
+  <!-- ── SECTION 8: Summary ── -->
+  <div class="section section-hidden" id="sec-8">
+    <div class="confetti-msg">
+      <div class="confetti-icon">&#10003;</div>
+      <div class="confetti-title">Discovery complete</div>
+      <div class="confetti-sub">Review the captured responses below before sharing with your team.</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ1 — Workforce &amp; structure</div>
+      <div class="summary-row"><div class="summary-q">Total headcount</div><div class="summary-a" id="s-headcount">—</div></div>
+      <div class="summary-row"><div class="summary-q">On payroll</div><div class="summary-a" id="s-payroll">—</div></div>
+      <div class="summary-row"><div class="summary-q">Locations</div><div class="summary-a" id="s-locations">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ2 — Current HR &amp; tech state</div>
+      <div class="summary-row"><div class="summary-q">In software</div><div class="summary-a" id="s-software">—</div></div>
+      <div class="summary-row"><div class="summary-q">Manual</div><div class="summary-a" id="s-manual">—</div></div>
+      <div class="summary-row"><div class="summary-q">Attendance method</div><div class="summary-a" id="s-attendance">—</div></div>
+      <div class="summary-row"><div class="summary-q">Notes</div><div class="summary-a" id="s-setup-notes">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ3 — Pain points</div>
+      <div class="summary-row"><div class="summary-q">Key challenges</div><div class="summary-a" id="s-pain">—</div></div>
+      <div class="summary-row"><div class="summary-q">Verbatim notes</div><div class="summary-a" id="s-pain-notes">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ4 — Demo</div>
+      <div class="summary-row"><div class="summary-q">Preferred date</div><div class="summary-a" id="s-demo-date">—</div></div>
+      <div class="summary-row"><div class="summary-q">Preferred time</div><div class="summary-a" id="s-demo-time">—</div></div>
+      <div class="summary-row"><div class="summary-q">Format</div><div class="summary-a" id="s-demo-format">—</div></div>
+      <div class="summary-row"><div class="summary-q">Notes</div><div class="summary-a" id="s-demo-notes">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ5 — Timeline</div>
+      <div class="summary-row"><div class="summary-q">Urgency</div><div class="summary-a" id="s-timeline">—</div></div>
+      <div class="summary-row"><div class="summary-q">Target go-live</div><div class="summary-a" id="s-golive">—</div></div>
+      <div class="summary-row"><div class="summary-q">Triggers / deadlines</div><div class="summary-a" id="s-timeline-notes">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ6 — Stakeholders</div>
+      <div class="summary-row"><div class="summary-q">Roles involved</div><div class="summary-a" id="s-roles">—</div></div>
+      <div class="summary-row"><div class="summary-q">Named contacts</div><div class="summary-a" id="s-stakeholders">—</div></div>
+      <div class="summary-row"><div class="summary-q">Decision-maker</div><div class="summary-a" id="s-decision-maker">—</div></div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-group-title">NQ7 — Budget</div>
+      <div class="summary-row"><div class="summary-q">Status</div><div class="summary-a" id="s-budget-status">—</div></div>
+      <div class="summary-row"><div class="summary-q">Range</div><div class="summary-a" id="s-budget-val">—</div></div>
+      <div class="summary-row"><div class="summary-q">Comments</div><div class="summary-a" id="s-budget-notes">—</div></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="prev(8)">&larr; Edit responses</button>
+      <button class="btn btn-primary" id="btn-submit" onclick="submitToFormspree()">Submit responses &rarr;</button>
+    </div>
+
+    <!-- Submitting state -->
+    <div id="submit-status" style="display:none;text-align:center;padding:24px 0;">
+      <div style="font-size:13px;color:var(--ink-mid);">Sending your responses&hellip;</div>
+    </div>
+
+    <!-- Success state -->
+    <div id="submit-success" style="display:none;text-align:center;padding:32px 0;">
+      <div style="font-size:36px;margin-bottom:12px;">&#10003;</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--teal);margin-bottom:8px;">Responses submitted!</div>
+      <div style="font-size:14px;color:var(--ink-mid);font-weight:300;">A copy has been sent to your email. The PeopleFactor team will be in touch shortly.</div>
+    </div>
+
+    <!-- Error state -->
+    <div id="submit-error" style="display:none;text-align:center;padding:24px 0;">
+      <div style="font-size:13px;color:var(--coral);">Something went wrong. Please try again or email us directly.</div>
+      <button class="btn btn-outline" style="margin-top:12px;" onclick="retrySubmit()">Try again</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Hidden Formspree form -->
+<form id="formspree-form" style="display:none;">
+  <input type="hidden" name="_replyto" id="fs-replyto">
+  <input type="hidden" name="_subject" value="HRMS Discovery Response — Aksh Optifibre">
+  <input type="hidden" name="Respondent name" id="fs-name">
+  <input type="hidden" name="Respondent email" id="fs-email">
+  <input type="hidden" name="Company" value="Aksh Optifibre Ltd.">
+  <input type="hidden" name="Submission date" id="fs-date">
+  <input type="hidden" name="NQ1 — Total headcount" id="fs-headcount">
+  <input type="hidden" name="NQ1 — On payroll" id="fs-payroll">
+  <input type="hidden" name="NQ1 — No. of locations" id="fs-locations">
+  <input type="hidden" name="NQ1 — Location names" id="fs-location-names">
+  <input type="hidden" name="NQ2 — Functions in software" id="fs-software">
+  <input type="hidden" name="NQ2 — Manual functions" id="fs-manual">
+  <input type="hidden" name="NQ2 — Attendance method" id="fs-attendance">
+  <input type="hidden" name="NQ2 — Setup notes" id="fs-setup-notes">
+  <input type="hidden" name="NQ3 — Pain areas" id="fs-pain">
+  <input type="hidden" name="NQ3 — Verbatim notes" id="fs-pain-notes">
+  <input type="hidden" name="NQ4 — Demo date" id="fs-demo-date">
+  <input type="hidden" name="NQ4 — Demo time" id="fs-demo-time">
+  <input type="hidden" name="NQ4 — Demo format" id="fs-demo-format">
+  <input type="hidden" name="NQ4 — Demo notes" id="fs-demo-notes">
+  <input type="hidden" name="NQ5 — Urgency" id="fs-timeline">
+  <input type="hidden" name="NQ5 — Target go-live" id="fs-golive">
+  <input type="hidden" name="NQ5 — Timeline notes" id="fs-timeline-notes">
+  <input type="hidden" name="NQ6 — Roles involved" id="fs-roles">
+  <input type="hidden" name="NQ6 — Named contacts" id="fs-stakeholders">
+  <input type="hidden" name="NQ6 — Decision-maker" id="fs-decision-maker">
+  <input type="hidden" name="NQ7 — Budget status" id="fs-budget-status">
+  <input type="hidden" name="NQ7 — Budget range" id="fs-budget-val">
+  <input type="hidden" name="NQ7 — Budget notes" id="fs-budget-notes">
+</form>
+
+<script>
+  // Set date
+  document.getElementById('date-display').textContent = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+
+  const budgetLabels = ['Under ₹1 L','₹1 – 2 L','₹2 – 5 L','₹5 – 10 L','₹10 – 20 L','₹20 – 50 L','₹50 L – 1 Cr','₹1 – 2 Cr','₹2 – 5 Cr','₹5 – 10 Cr','₹10 Cr+'];
+  function updateBudget(v) {
+    document.getElementById('budget-val').textContent = budgetLabels[v] + '/yr';
+  }
+  updateBudget(3);
+
+  const pillGroups = {};
+  function togglePill(el, group, single) {
+    if (!pillGroups[group]) pillGroups[group] = [];
+    if (single) {
+      el.closest('.pill-group').querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+      pillGroups[group] = [];
+    }
+    const idx = pillGroups[group].indexOf(el.textContent);
+    if (idx > -1) {
+      pillGroups[group].splice(idx,1);
+      el.classList.remove('selected');
+    } else {
+      pillGroups[group].push(el.textContent);
+      el.classList.add('selected');
+    }
+  }
+
+  function getPills(group) {
+    return (pillGroups[group] || []).join(', ') || '—';
+  }
+
+  function v(id) {
+    const el = document.getElementById(id);
+    return el ? (el.value.trim() || '—') : '—';
+  }
+
+  function sa(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val || '—';
+    el.className = 'summary-a' + (!val || val==='—' ? ' empty' : '');
+  }
+
+  function buildSummary() {
+    sa('s-headcount', v('f-headcount'));
+    sa('s-payroll', v('f-payroll'));
+    const locs = v('f-locations') !== '—' ? v('f-locations') + ' location(s)' : '—';
+    const locNames = v('f-location-names');
+    sa('s-locations', locNames !== '—' ? locs + ' — ' + locNames : locs);
+    sa('s-software', getPills('software'));
+    sa('s-manual', getPills('manual'));
+    sa('s-attendance', getPills('attendance'));
+    sa('s-setup-notes', v('f-setup-notes'));
+    sa('s-pain', getPills('pain'));
+    sa('s-pain-notes', v('f-pain-notes'));
+    sa('s-demo-date', v('f-demo-date'));
+    sa('s-demo-time', v('f-demo-time'));
+    sa('s-demo-format', getPills('demo-format'));
+    sa('s-demo-notes', v('f-demo-notes'));
+    sa('s-timeline', getPills('timeline'));
+    sa('s-golive', v('f-golive'));
+    sa('s-timeline-notes', v('f-timeline-notes'));
+    sa('s-roles', getPills('roles'));
+    sa('s-stakeholders', v('f-stakeholders'));
+    sa('s-decision-maker', v('f-decision-maker'));
+    sa('s-budget-status', getPills('budget-status'));
+    sa('s-budget-val', document.getElementById('budget-val').textContent);
+    sa('s-budget-notes', v('f-budget-notes'));
+  }
+
+  let current = 1;
+
+  function goTo(n) {
+    document.getElementById('sec-' + current).classList.add('section-hidden');
+    document.getElementById('sec-' + n).classList.remove('section-hidden');
+    for (let i = 1; i <= 8; i++) {
+      const dot = document.getElementById('dot-' + i);
+      if (!dot) continue;
+      dot.classList.remove('active','done');
+      if (i < n) dot.classList.add('done');
+      else if (i === n) dot.classList.add('active');
+    }
+    for (let i = 1; i <= 7; i++) {
+      const line = document.getElementById('line-' + i);
+      if (!line) continue;
+      line.classList.toggle('done', i < n);
+    }
+    current = n;
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function next(from) {
+    if (from === 7) buildSummary();
+    goTo(from + 1);
+  }
+
+  function prev(from) {
+    goTo(from - 1);
+  }
+
+  // ── FORMSPREE SUBMIT ──
+  // Replace YOUR_FORM_ID below with the ID from your Formspree dashboard
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mqeyblvy';
+
+  function populateHiddenFields() {
+    const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val || ''; };
+    set('fs-name',           document.getElementById('f-respondent-name')?.value || '');
+    set('fs-email',          document.getElementById('f-respondent-email')?.value || '');
+    set('fs-replyto',        document.getElementById('f-respondent-email')?.value || '');
+    set('fs-date',           new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}));
+    set('fs-headcount',      v('f-headcount'));
+    set('fs-payroll',        v('f-payroll'));
+    const locs = v('f-locations') !== '—' ? v('f-locations') + ' location(s)' : '';
+    const locNames = v('f-location-names');
+    set('fs-locations',      locs);
+    set('fs-location-names', locNames);
+    set('fs-software',       getPills('software'));
+    set('fs-manual',         getPills('manual'));
+    set('fs-attendance',     getPills('attendance'));
+    set('fs-setup-notes',    v('f-setup-notes'));
+    set('fs-pain',           getPills('pain'));
+    set('fs-pain-notes',     v('f-pain-notes'));
+    set('fs-demo-date',      v('f-demo-date'));
+    set('fs-demo-time',      v('f-demo-time'));
+    set('fs-demo-format',    getPills('demo-format'));
+    set('fs-demo-notes',     v('f-demo-notes'));
+    set('fs-timeline',       getPills('timeline'));
+    set('fs-golive',         v('f-golive'));
+    set('fs-timeline-notes', v('f-timeline-notes'));
+    set('fs-roles',          getPills('roles'));
+    set('fs-stakeholders',   v('f-stakeholders'));
+    set('fs-decision-maker', v('f-decision-maker'));
+    set('fs-budget-status',  getPills('budget-status'));
+    set('fs-budget-val',     document.getElementById('budget-val')?.textContent || '');
+    set('fs-budget-notes',   v('f-budget-notes'));
+  }
+
+  async function submitToFormspree() {
+    const email = document.getElementById('f-respondent-email')?.value?.trim();
+    if (!email) {
+      alert('Please go back to step 1 and enter your email address so we can send you a copy.');
+      return;
+    }
+
+    populateHiddenFields();
+
+    document.getElementById('btn-submit').style.display = 'none';
+    document.getElementById('submit-status').style.display = 'block';
+    document.getElementById('submit-error').style.display = 'none';
+
+    const form = document.getElementById('formspree-form');
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        document.getElementById('submit-status').style.display = 'none';
+        document.getElementById('submit-success').style.display = 'block';
+        // scroll to success
+        document.getElementById('submit-success').scrollIntoView({behavior:'smooth'});
+      } else {
+        throw new Error('Non-OK response');
+      }
+    } catch(e) {
+      document.getElementById('submit-status').style.display = 'none';
+      document.getElementById('submit-error').style.display = 'block';
+      document.getElementById('btn-submit').style.display = 'inline-block';
+    }
+  }
+
+  function retrySubmit() {
+    document.getElementById('submit-error').style.display = 'none';
+    submitToFormspree();
+  }
+</script>
+</body>
+</html>
